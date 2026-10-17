@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>NutriTrack — Food & Calorie Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>NutriTrack</h1>
+      <p>Calories & macros by grams</p>
+    </div>
+    <button id="clearDayBtn" class="ghost danger">Clear day</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">DAILY NUTRITION</span>
+        <h2>Track what you eat, one gram at a time.</h2>
+        <p>Search the online food database or use the built-in Indian food list.</p>
+      </div>
+      <div class="date-pill" id="today"></div>
+    </section>
+
+    <section class="targets card">
+      <div class="section-title">
+        <div>
+          <h3>Daily targets</h3>
+          <p>Optional — used for progress bars only.</p>
+        </div>
+        <button id="editTargetsBtn" class="text-btn">Edit</button>
+      </div>
+      <div id="targetForm" class="target-form hidden">
+        <label>Calories <input id="targetCalories" type="number" min="0" step="1"></label>
+        <label>Protein (g) <input id="targetProtein" type="number" min="0" step="0.1"></label>
+        <label>Carbs (g) <input id="targetCarbs" type="number" min="0" step="0.1"></label>
+        <label>Fat (g) <input id="targetFat" type="number" min="0" step="0.1"></label>
+        <label>Fiber (g) <input id="targetFiber" type="number" min="0" step="0.1"></label>
+        <button id="saveTargetsBtn" class="primary">Save targets</button>
+      </div>
+      <div id="targetBars" class="target-bars"></div>
+    </section>
+
+    <section class="card add-card">
+      <div class="section-title">
+        <div>
+          <h3>Add food</h3>
+          <p>Enter the amount you actually ate.</p>
+        </div>
+      </div>
+
+      <div class="search-row">
+        <input id="foodSearch" type="search" placeholder="Search chicken, rice, paneer, banana..." autocomplete="off">
+        <button id="searchBtn" class="primary">Search</button>
+      </div>
+      <div class="hint">Online search uses Open Food Facts. Search is not auto-triggered while typing to avoid rate limits.</div>
+
+      <div id="searchStatus" class="status"></div>
+      <div id="foodResults" class="food-results"></div>
+
+      <div class="selected-food hidden" id="selectedFood">
+        <div>
+          <span class="eyebrow">SELECTED FOOD</span>
+          <h4 id="selectedFoodName"></h4>
+          <p id="selectedFoodInfo"></p>
+        </div>
+        <div class="grams-row">
+          <label>Amount (grams)
+            <input id="gramsInput" type="number" min="0.1" step="0.1" value="100">
+          </label>
+          <button id="addFoodBtn" class="primary">+ Add food</button>
+        </div>
+      </div>
+
+      <details class="custom-food">
+        <summary>Add a custom food</summary>
+        <p class="hint">Enter nutrition values per 100 g from a food label or trusted source.</p>
+        <div class="custom-grid">
+          <input id="customName" placeholder="Food name">
+          <input id="customCalories" type="number" min="0" placeholder="Calories / 100g">
+          <input id="customProtein" type="number" min="0" step="0.1" placeholder="Protein g">
+          <input id="customCarbs" type="number" min="0" step="0.1" placeholder="Carbs g">
+          <input id="customFat" type="number" min="0" step="0.1" placeholder="Fat g">
+          <input id="customFiber" type="number" min="0" step="0.1" placeholder="Fiber g">
+          <button id="addCustomBtn" class="primary">Use custom food</button>
+        </div>
+      </details>
+    </section>
+
+    <section class="summary-grid">
+      <div class="summary-card calories"><span>🔥 Calories</span><strong id="totalCalories">0</strong><small>kcal</small></div>
+      <div class="summary-card protein"><span>💪 Protein</span><strong id="totalProtein">0</strong><small>g</small></div>
+      <div class="summary-card carbs"><span>🍚 Carbs</span><strong id="totalCarbs">0</strong><small>g</small></div>
+      <div class="summary-card fat"><span>🥑 Fat</span><strong id="totalFat">0</strong><small>g</small></div>
+      <div class="summary-card fiber"><span>🌾 Fiber</span><strong id="totalFiber">0</strong><small>g</small></div>
+    </section>
+
+    <section class="card meal-card">
+      <div class="section-title">
+        <div>
+          <h3>Today's foods</h3>
+          <p id="foodCount">0 items</p>
+        </div>
+        <button id="exportBtn" class="text-btn">Export CSV</button>
+      </div>
+      <div id="mealList" class="meal-list"></div>
+      <div id="emptyState" class="empty">
+        <div class="empty-icon">🍽️</div>
+        <h4>No foods added yet</h4>
+        <p>Search for a food above, enter grams, and tap “Add food”.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Nutrition data from Open Food Facts and the built-in food list. Values are estimates and should not replace professional dietary advice.</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
