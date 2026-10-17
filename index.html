@@ -1,142 +1,107 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#16a34a">
-  <meta name="description" content="NutriTrack - free food, calorie and macro calculator">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./icons/icon-192.png">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
-  <link rel="stylesheet" href="./style.css">
-  <title>NutriTrack</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16a34a">
+<meta name="description" content="NutriTrack - free calorie and macro calculator">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./style.css">
+<title>NutriTrack</title>
 </head>
 <body>
 <header class="topbar">
-  <div>
-    <h1>🥗 NutriTrack</h1>
-    <p>Calories & macros made simple</p>
-  </div>
+  <div class="brand"><div class="logo">🥗</div><div><h1>NutriTrack</h1><p>Calories & macros made simple</p></div></div>
   <div class="top-actions">
-    <button id="installBtn" class="primary hidden">Install App</button>
-    <button id="darkBtn" class="icon-btn" title="Toggle dark mode">🌙</button>
+    <button id="installBtn" class="primary install hidden">Install App</button>
+    <button id="darkBtn" class="icon-btn" aria-label="Toggle dark mode">🌙</button>
   </div>
 </header>
 
 <main class="container">
-  <section class="hero card">
-    <div>
-      <h2>Today's nutrition</h2>
-      <p id="dateLabel"></p>
-    </div>
-    <button id="clearDayBtn" class="danger-outline">Clear today</button>
-  </section>
+<section class="hero card">
+  <div><div class="eyebrow">TODAY</div><h2>Today's nutrition</h2><p id="dateLabel"></p></div>
+  <button id="clearDayBtn" class="danger-outline">Clear today</button>
+</section>
 
-  <section class="stats-grid">
-    <div class="stat card"><span>Calories</span><strong id="calories">0</strong><small>kcal</small></div>
-    <div class="stat card"><span>Protein</span><strong id="protein">0</strong><small>g</small></div>
-    <div class="stat card"><span>Carbs</span><strong id="carbs">0</strong><small>g</small></div>
-    <div class="stat card"><span>Fat</span><strong id="fat">0</strong><small>g</small></div>
-    <div class="stat card"><span>Fiber</span><strong id="fiber">0</strong><small>g</small></div>
-  </section>
+<section class="stats-grid">
+  <div class="stat card"><span>Calories</span><div><strong id="calories">0</strong><em>kcal</em></div></div>
+  <div class="stat card"><span>Protein</span><div><strong id="protein">0</strong><em>g</em></div></div>
+  <div class="stat card"><span>Carbs</span><div><strong id="carbs">0</strong><em>g</em></div></div>
+  <div class="stat card"><span>Fat</span><div><strong id="fat">0</strong><em>g</em></div></div>
+  <div class="stat card"><span>Fiber</span><div><strong id="fiber">0</strong><em>g</em></div></div>
+</section>
 
-  <section class="card">
-    <div class="section-head">
-      <h2>Daily targets</h2>
-      <button id="targetBtn" class="secondary">Edit targets</button>
-    </div>
-    <div class="progress-list">
-      <div><div class="progress-label"><span>Calories</span><b id="calPct">0%</b></div><div class="bar"><i id="calBar"></i></div></div>
-      <div><div class="progress-label"><span>Protein</span><b id="proPct">0%</b></div><div class="bar"><i id="proBar"></i></div></div>
-      <div><div class="progress-label"><span>Carbs</span><b id="carbPct">0%</b></div><div class="bar"><i id="carbBar"></i></div></div>
-      <div><div class="progress-label"><span>Fat</span><b id="fatPct">0%</b></div><div class="bar"><i id="fatBar"></i></div></div>
-      <div><div class="progress-label"><span>Fiber</span><b id="fibPct">0%</b></div><div class="bar"><i id="fibBar"></i></div></div>
-    </div>
-  </section>
+<section class="card">
+<div class="section-head"><h2>Daily targets</h2><button id="targetBtn" class="secondary">Edit targets</button></div>
+<div class="progress-list">
+<div><div class="progress-label"><span>Calories</span><b id="calPct">0%</b></div><div class="bar"><i id="calBar"></i></div></div>
+<div><div class="progress-label"><span>Protein</span><b id="proPct">0%</b></div><div class="bar"><i id="proBar"></i></div></div>
+<div><div class="progress-label"><span>Carbs</span><b id="carbPct">0%</b></div><div class="bar"><i id="carbBar"></i></div></div>
+<div><div class="progress-label"><span>Fat</span><b id="fatPct">0%</b></div><div class="bar"><i id="fatBar"></i></div></div>
+<div><div class="progress-label"><span>Fiber</span><b id="fibPct">0%</b></div><div class="bar"><i id="fibBar"></i></div></div>
+</div>
+</section>
 
-  <section class="card">
-    <div class="section-head">
-      <h2>Add food</h2>
-      <span class="pill">per 100g</span>
-    </div>
-    <div class="form-grid">
-      <label>Meal
-        <select id="meal">
-          <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option>
-        </select>
-      </label>
-      <label>Food name
-        <input id="foodName" placeholder="e.g. Paneer">
-      </label>
-      <label>Grams
-        <input id="grams" type="number" min="1" step="1" placeholder="100">
-      </label>
-      <button id="addCustomBtn" class="primary wide">Add custom food</button>
-    </div>
-    <div class="quick-actions">
-      <button id="searchBtn" class="secondary">🔎 Search online</button>
-      <button id="customBtn" class="secondary">➕ Custom nutrition</button>
-      <button id="exportBtn" class="secondary">📄 Export CSV</button>
-    </div>
-    <div id="searchPanel" class="subpanel hidden">
-      <div class="inline">
-        <input id="searchInput" placeholder="Search food (Open Food Facts)">
-        <button id="doSearch" class="primary">Search</button>
-      </div>
-      <div id="searchResults"></div>
-    </div>
-  </section>
+<section class="card">
+<div class="section-head"><h2>Add food</h2><span class="pill">nutrition per 100g</span></div>
+<div class="form-grid">
+<label>Meal<select id="meal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></label>
+<label>Food name<input id="foodName" placeholder="e.g. Paneer"></label>
+<label>Grams<input id="grams" type="number" min="1" step="1" placeholder="100"></label>
+<button id="addCustomBtn" class="primary wide">Add food</button>
+</div>
+<div class="quick-actions">
+<button id="searchBtn" class="secondary">🔎 Search online</button>
+<button id="customBtn" class="secondary">➕ Custom nutrition</button>
+<button id="exportBtn" class="secondary">📄 Export CSV</button>
+</div>
+<div id="searchPanel" class="subpanel hidden">
+<div class="inline"><input id="searchInput" placeholder="Search Open Food Facts"><button id="doSearch" class="primary">Search</button></div>
+<div id="searchResults"></div>
+</div>
+</section>
 
-  <section id="customPanel" class="card hidden">
-    <div class="section-head"><h2>Custom food nutrition</h2><button id="closeCustom" class="secondary">Close</button></div>
-    <p class="muted">Enter nutrition values per 100g.</p>
-    <div class="form-grid">
-      <label>Name<input id="cName" placeholder="Food name"></label>
-      <label>Calories<input id="cCal" type="number" min="0" step="0.1"></label>
-      <label>Protein (g)<input id="cPro" type="number" min="0" step="0.1"></label>
-      <label>Carbs (g)<input id="cCarb" type="number" min="0" step="0.1"></label>
-      <label>Fat (g)<input id="cFat" type="number" min="0" step="0.1"></label>
-      <label>Fiber (g)<input id="cFib" type="number" min="0" step="0.1"></label>
-      <button id="saveCustom" class="primary wide">Save & add</button>
-    </div>
-  </section>
+<section id="customPanel" class="card hidden">
+<div class="section-head"><h2>Custom food</h2><button id="closeCustom" class="secondary">Close</button></div>
+<p class="muted">Enter nutrition values per 100g.</p>
+<div class="form-grid">
+<label>Name<input id="cName"></label><label>Calories<input id="cCal" type="number" min="0"></label>
+<label>Protein (g)<input id="cPro" type="number" min="0"></label><label>Carbs (g)<input id="cCarb" type="number" min="0"></label>
+<label>Fat (g)<input id="cFat" type="number" min="0"></label><label>Fiber (g)<input id="cFib" type="number" min="0"></label>
+<button id="saveCustom" class="primary wide">Save & add</button>
+</div>
+</section>
 
-  <section class="card">
-    <div class="section-head"><h2>Today's meals</h2><span id="entryCount" class="pill">0 items</span></div>
-    <div id="meals"></div>
-  </section>
+<section class="card">
+<div class="section-head"><h2>Today's meals</h2><span id="entryCount" class="pill">0 items</span></div>
+<div id="meals"></div>
+</section>
 
-  <section class="card">
-    <div class="section-head"><h2>7-day history</h2><button id="resetHistoryBtn" class="secondary">Reset history</button></div>
-    <canvas id="historyChart" height="220"></canvas>
-  </section>
+<section class="card">
+<div class="section-head"><h2>7-day history</h2><button id="resetHistoryBtn" class="secondary">Reset history</button></div>
+<canvas id="historyChart" height="220"></canvas>
+</section>
 
-  <section class="card tips">
-    <h2>How it works</h2>
-    <ul>
-      <li>Nutrition is calculated from values per 100g and scaled to your entered grams.</li>
-      <li>Your entries and targets are saved locally in this browser.</li>
-      <li>Built-in foods work offline. Online Open Food Facts search needs internet.</li>
-      <li>Install this site as an app from Chrome on Android for a full-screen app experience.</li>
-    </ul>
-  </section>
+<section class="card tips"><h2>How it works</h2><ul>
+<li>Enter the grams you ate; nutrition is automatically scaled from 100g values.</li>
+<li>Your meals, targets, history and theme are saved on this device.</li>
+<li>Built-in foods work offline. Online food search needs internet.</li>
+<li>Use Chrome's Install App option to use NutriTrack like an Android app.</li>
+</ul></section>
 </main>
 
-<div id="targetModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="section-head"><h2>Daily targets</h2><button id="closeTarget" class="secondary">Close</button></div>
-    <div class="form-grid">
-      <label>Calories<input id="tCal" type="number" min="1"></label>
-      <label>Protein (g)<input id="tPro" type="number" min="1"></label>
-      <label>Carbs (g)<input id="tCarb" type="number" min="1"></label>
-      <label>Fat (g)<input id="tFat" type="number" min="1"></label>
-      <label>Fiber (g)<input id="tFib" type="number" min="1"></label>
-      <button id="saveTargets" class="primary wide">Save targets</button>
-    </div>
-  </div>
-</div>
+<div id="targetModal" class="modal hidden"><div class="modal-box">
+<div class="section-head"><h2>Daily targets</h2><button id="closeTarget" class="secondary">Close</button></div>
+<div class="form-grid">
+<label>Calories<input id="tCal" type="number" min="1"></label><label>Protein (g)<input id="tPro" type="number" min="1"></label>
+<label>Carbs (g)<input id="tCarb" type="number" min="1"></label><label>Fat (g)<input id="tFat" type="number" min="1"></label>
+<label>Fiber (g)<input id="tFib" type="number" min="1"></label><button id="saveTargets" class="primary wide">Save targets</button>
+</div></div></div>
 
+<div id="updateBanner" class="update-banner hidden">New NutriTrack version available. <button id="reloadBtn">Update now</button></div>
 <footer>NutriTrack • Free • GitHub Pages • No account required</footer>
 <script src="./app.js"></script>
-</body>
-</html>
+</body></html>

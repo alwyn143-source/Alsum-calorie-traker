@@ -1,7 +1,7 @@
 {
   "name": "NutriTrack - Food & Macro Calculator",
   "short_name": "NutriTrack",
-  "description": "Free calorie and nutrition calculator with meals, targets, history and offline support.",
+  "description": "Free calorie and nutrition calculator.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
