@@ -1,8 +1,8 @@
 {
-  "name": "NutriTrack - Food & Macro Calculator",
+  "name": "NutriTrack",
   "short_name": "NutriTrack",
-  "description": "Free calorie and nutrition calculator.",
-  "start_url": "./",
+  "description": "Food, calorie and macro calculator",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
