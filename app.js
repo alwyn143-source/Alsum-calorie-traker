@@ -24,7 +24,8 @@ function renderHistory(){const a=[];for(let i=6;i>=0;i--){const d=new Date();d.s
 $("foodFilter").oninput=e=>fillFoods(e.target.value);$("food").onchange=showInfo;$("addBtn").onclick=()=>addFood(selectedFood(),$("grams").value,$("meal").value);
 $("darkBtn").onclick=()=>{dark=!dark;setDark()};function setDark(){document.body.classList.toggle("dark",dark);$("darkBtn").textContent=dark?"☀️":"🌙";localStorage.setItem("nt_dark",dark?"1":"0")}
 $("clearToday").onclick=()=>{if(confirm("Clear all foods for today?")){entries=entries.filter(e=>e.date!==today());save();render()}}
-$("saveTargets").onclick=()=>{targets={cal:+$("tCal").value||2000,p:+$("tP").value||120,c:+$("tC").value||250,f:+$("tF").value||65,fi:+$("tFi").value||30};localStorage.setItem("nt_targets",JSON.stringify(targets));render()}
+function loadTargetInputs(){ $("tCal").value=targets.cal; $("tP").value=targets.p; $("tC").value=targets.c; $("tF").value=targets.f; $("tFi").value=targets.fi; }
+$("saveTargets").onclick=()=>{const next={cal:Number($("tCal").value),p:Number($("tP").value),c:Number($("tC").value),f:Number($("tF").value),fi:Number($("tFi").value)};if(!Object.values(next).every(v=>Number.isFinite(v)&&v>0)){alert("Please enter valid target values greater than 0.");return}targets=next;localStorage.setItem("nt_targets",JSON.stringify(targets));loadTargetInputs();render();$("targetsStatus").textContent="Targets saved ✓";setTimeout(()=>$("targetsStatus").textContent="",1800)};loadTargetInputs()
 function clearCustomForm(){editingCustomIndex=-1;$("cName").value="";$("cState").value="cooked";$("cCal").value="";$("cP").value="";$("cC").value="";$("cF").value="";$("cFi").value="0";$("saveCustom").textContent="Save custom food"}
 function renderCustomList(){const el=$("customList");if(!el)return;if(!customFoods.length){el.innerHTML='<div class="empty">No saved custom foods.</div>';return}el.innerHTML=customFoods.map((f,i)=>`<div class="custom-item"><div><b>${esc(f.name)}</b><div class="small">${esc(f.note)} • ${fmt(f.cal)} kcal • P ${fmt(f.protein)}g • C ${fmt(f.carbs)}g • F ${fmt(f.fat)}g • Fiber ${fmt(f.fiber)}g</div></div><div class="custom-actions"><button class="secondary" onclick="editCustom(${i})">Edit</button><button class="delete-custom" onclick="deleteCustom(${i})">Delete</button></div></div>`).join("")}
 window.editCustom=i=>{const f=customFoods[i];if(!f)return;editingCustomIndex=i;$("cName").value=f.name;$("cState").value=f.state;$("cCal").value=f.cal;$("cP").value=f.protein;$("cC").value=f.carbs;$("cF").value=f.fat;$("cFi").value=f.fiber||0;$("saveCustom").textContent="Update custom food";$("customPanel").classList.remove("hidden")}
@@ -60,24 +61,105 @@ function renderWeight(){
 }
 function drawWeightChart(list,goal){const el=$('weightChart');if(!el)return;if(!list.length){el.innerHTML='<div class="empty">Add a weight entry to see your trend.</div>';return}const W=700,H=220,p=35,vals=list.map(x=>x.weight),min=Math.min(...vals,goal||Infinity)-1,max=Math.max(...vals,goal||-Infinity)+1;const x=i=>p+(W-2*p)*(list.length===1?.5:i/(list.length-1));const y=v=>H-p-(v-min)/(max-min||1)*(H-2*p);const pts=list.map((v,i)=>`${x(i)},${y(v)}`).join(' ');const circles=list.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="4"/><text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10">${v.date.slice(5)}</text>`).join('');const goalLine=goal?`<line x1="${p}" x2="${W-p}" y1="${y(goal)}" y2="${y(goal)}" stroke="currentColor" stroke-dasharray="5 4"/><text x="${W-p}" y="${y(goal)-5}" text-anchor="end" font-size="11">Goal ${fmt(goal)}kg</text>`:'';el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight trend"><line x1="${p}" x2="${p}" y1="${p}" y2="${H-p}" stroke="currentColor" opacity=".2"/><line x1="${p}" x2="${W-p}" y1="${H-p}" y2="${H-p}" stroke="currentColor" opacity=".2"/>${goalLine}<polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="3"/>${circles}</svg>`}
 window.deleteWeight=i=>{weights.splice(i,1);saveWeights();renderWeight()};
-$('saveWeight').onclick=()=>{const weight=Number($('weightValue').value);const date=$('weightDate').value||today();if(!weight||weight<=0)return alert('Enter a valid weight.');const waist=Number($('waistValue').value)||0;const existing=weights.findIndex(x=>x.date===date);const obj={date,weight,waist};if(existing>=0)weights[existing]=obj;else weights.push(obj);localStorage.setItem('nt_weight_goal',String(Number($('weightGoal').value)||''));saveWeights();$('weightValue').value='';$('waistValue').value='';renderWeight()};
-$('weightDate').value=today();
+function saveWeightGoal(){const goal=Number($("weightGoal").value);if(!Number.isFinite(goal)||goal<=0){alert("Please enter a valid goal weight.");return}localStorage.setItem("nt_weight_goal",String(goal));$("weightGoal").value=goal;renderWeight();$("weightStatus").textContent="Weight goal saved ✓";setTimeout(()=>$("weightStatus").textContent="",1800)}
+$("saveWeightGoal").onclick=saveWeightGoal;
+$("saveWeight").onclick=()=>{const weight=Number($("weightValue").value);const date=$("weightDate").value||today();if(!weight||weight<=0)return alert('Enter a valid weight.');const goal=Number($("weightGoal").value);if(goal>0)localStorage.setItem('nt_weight_goal',String(goal));const waist=Number($("waistValue").value)||0;const existing=weights.findIndex(x=>x.date===date);const obj={date,weight,waist};if(existing>=0)weights[existing]=obj;else weights.push(obj);saveWeights();$("weightValue").value='';$("waistValue").value='';renderWeight();$("weightStatus").textContent="Weight saved ✓";setTimeout(()=>$("weightStatus").textContent="",1800)};
+$("weightDate").value=today();
 
-function populatePlanFoods(){const sel=$('planFood');if(!sel)return;const q=allFoods();sel.innerHTML=q.map((f,i)=>`<option value="${i}">${esc(f.name)} — ${esc(f.state)}</option>`).join('')}
+function populatePlanFoods(){const sel=$('planFood');if(!sel)return;const q=allFoods();sel.innerHTML='<option value="">Select a food…</option>'+q.map((f,i)=>`<option value="${i}">${esc(f.name)} — ${esc(f.state)}</option>`).join('');if(q.length)sel.value='0'}
 function planDays(){const start=mondayOf($('planWeek').value||today());return Array.from({length:7},(_,i)=>{const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);return isoDate(d)})}
-function populatePlanDays(){const sel=$('planDay');if(!sel)return;sel.innerHTML=planDays().map(d=>`<option value="${d}">${new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})}</option>`).join('');sel.value=today()>=planDays()[0]&&today()<=planDays()[6]?today():planDays()[0]}
+function populatePlanDays(){const sel=$('planDay');if(!sel)return;const ds=planDays();sel.innerHTML='<option value="">Select a day…</option>'+ds.map(d=>`<option value="${d}">${new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})}</option>`).join('');const preferred=today()>=ds[0]&&today()<=ds[6]?today():ds[0];sel.value=preferred}
 function renderMealPlan(){const start=mondayOf($('planWeek').value||today());$('planWeek').value=start;populatePlanDays();const days=[];for(let i=0;i<7;i++){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);days.push(isoDate(d))}const meals=['Breakfast','Lunch','Dinner','Snacks'];$('mealPlanGrid').innerHTML=days.map(d=>{const day=new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});let html=`<div class="plan-day"><h4>${day}</h4>`;meals.forEach(m=>{const arr=mealPlan[planKey(d,m)]||[];html+=`<div class="small"><b>${m}</b></div>`;arr.forEach((x,j)=>html+=`<div class="plan-item">${esc(x.name)} ${x.grams}g <button class="ghost" onclick="removePlan('${d}','${m}',${j})">×</button></div>`)});return html+'</div>'}).join('')}
 window.removePlan=(d,m,i)=>{const k=planKey(d,m);mealPlan[k].splice(i,1);if(!mealPlan[k].length)delete mealPlan[k];localStorage.setItem('nt_mealplan',JSON.stringify(mealPlan));renderMealPlan()};
-$('planWeek').value=mondayOf(today());$('planWeek').onchange=renderMealPlan;$('addPlan').onclick=()=>{const d=$('planDay').value||mondayOf(today());const meal=$('planMeal').value;const selected=allFoods()[Number($('planFood').value)];const grams=Number($('planGrams').value)||0;if(!selected||!grams)return;const k=planKey(d,meal);mealPlan[k]??=[];mealPlan[k].push({name:selected.name,state:selected.state,grams});localStorage.setItem('nt_mealplan',JSON.stringify(mealPlan));renderMealPlan()};
+$('planWeek').value=mondayOf(today());$('planWeek').onchange=()=>{populatePlanFoods();renderMealPlan()};$('addPlan').onclick=()=>{const d=$('planDay').value;const meal=$('planMeal').value;const idx=Number($('planFood').value);const selected=Number.isInteger(idx)?allFoods()[idx]:null;const grams=Number($('planGrams').value)||0;if(!d){alert('Please select a day.');return}if(!selected){alert('Please select a food.');return}if(!grams){alert('Please enter grams.');return}const k=planKey(d,meal);mealPlan[k]??=[];mealPlan[k].push({name:selected.name,state:selected.state,grams});localStorage.setItem('nt_mealplan',JSON.stringify(mealPlan));renderMealPlan()};
 $('clearPlan').onclick=()=>{if(!confirm('Clear this week\'s meal plan?'))return;const start=mondayOf($('planWeek').value||today());for(let i=0;i<7;i++){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);['Breakfast','Lunch','Dinner','Snacks'].forEach(m=>delete mealPlan[planKey(isoDate(d),m)])}localStorage.setItem('nt_mealplan',JSON.stringify(mealPlan));renderMealPlan()};
 $('shoppingBtn').onclick=()=>{const start=mondayOf($('planWeek').value||today());const sums={};for(let i=0;i<7;i++){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);['Breakfast','Lunch','Dinner','Snacks'].forEach(m=>(mealPlan[planKey(isoDate(d),m)]||[]).forEach(x=>{const k=`${x.name} (${x.state})`;sums[k]=(sums[k]||0)+Number(x.grams)}))}$('shoppingList').textContent=Object.keys(sums).length?Object.entries(sums).sort().map(([k,v])=>`• ${k}: ${fmt(v)} g`).join('\n'):'No foods planned yet.'};
 
-function openScanner(){scrollToId('scannerSection');startScanner()};window.openScanner=openScanner;$('closeScanner').onclick=stopScanner;
-let scanStream=null,scanTimer=null;
-async function startScanner(){if(!('BarcodeDetector'in window)){$('barcodeStatus').textContent='Camera barcode scanning is not supported in this browser. Enter the barcode manually below.';return}try{const detector=new BarcodeDetector();scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});$('barcodeVideo').srcObject=scanStream;await $('barcodeVideo').play();$('barcodeStatus').textContent='Point the camera at a barcode…';const loop=async()=>{if(!scanStream)return;try{const codes=await detector.detect($('barcodeVideo'));if(codes[0]?.rawValue){$('barcodeInput').value=codes[0].rawValue;lookupBarcode(codes[0].rawValue);stopScanner();return}}catch(e){}scanTimer=requestAnimationFrame(loop)};loop()}catch(e){$('barcodeStatus').textContent='Camera access failed. Please allow camera permission or enter the barcode manually.'}}
-function stopScanner(){if(scanTimer)cancelAnimationFrame(scanTimer);scanTimer=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}const v=$('barcodeVideo');if(v)v.srcObject=null}
-async function lookupBarcode(code){code=String(code||'').trim();if(!code)return;$('barcodeStatus').textContent='Looking up product…';$('barcodeResult').innerHTML='';try{const target=`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`;const r=await fetch('https://proxy.cors.dev/'+target,{credentials:'omit',headers:{Accept:'application/json'}});if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();if(d.status!==1||!d.product)throw Error('Product not found');const f=mapOff(d.product);window._barcodeFood=f;$('barcodeStatus').textContent='Product found';$('barcodeResult').innerHTML=`<div class="online-result"><b>${esc(f.name)}</b><div class="small">Per 100g: ${fmt(f.cal)} kcal • P ${fmt(f.protein)}g • C ${fmt(f.carbs)}g • F ${fmt(f.fat)}g • Fiber ${fmt(f.fiber)}g</div><div class="row2"><input id="barcodeGrams" type="number" min="1" value="100"><button class="primary" onclick="addBarcodeFood()">Add to ${esc($('meal').value)}</button></div></div>`}catch(e){$('barcodeStatus').textContent='Could not find that barcode. Try manual food search or create a custom food.'}}
-window.addBarcodeFood=()=>{const f=window._barcodeFood;if(f){addFood(f,$('barcodeGrams').value,$('meal').value);$('barcodeResult').innerHTML='<div class="notice">Added to today.</div>'}};$('barcodeLookup').onclick=()=>lookupBarcode($('barcodeInput').value);$('barcodeInput').onkeydown=e=>{if(e.key==='Enter')lookupBarcode(e.target.value)};
+function openScanner(){scrollToId('scannerSection');setTimeout(startScanner,250)};window.openScanner=openScanner;$('closeScanner').onclick=stopScanner;
+let scanStream=null,scanTimer=null,htmlScanner=null,barcodeDetector=null;
+async function startScanner(){
+  stopScanner();
+  $('barcodeStatus').textContent='Starting camera…';
+  const video=$('barcodeVideo');
+  try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Camera API unavailable');
+    scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+    video.srcObject=scanStream;
+    video.muted=true; video.setAttribute('playsinline','');
+    await video.play();
+    $('barcodeStatus').textContent='Camera is on. Point it at the barcode…';
+
+    if('BarcodeDetector' in window){
+      try{
+        const formats=await BarcodeDetector.getSupportedFormats();
+        const wanted=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','codabar'].filter(x=>formats.includes(x));
+        barcodeDetector=new BarcodeDetector(wanted.length?{formats:wanted}:undefined);
+        const scan=async()=>{
+          if(!scanStream||video.readyState<2){scanTimer=requestAnimationFrame(scan);return}
+          try{
+            const found=await barcodeDetector.detect(video);
+            if(found && found.length){
+              const code=found[0].rawValue;
+              $('barcodeInput').value=code;
+              $('barcodeStatus').textContent='Barcode detected. Looking up product…';
+              stopScanner();
+              await lookupBarcode(code);
+              return;
+            }
+          }catch(e){}
+          scanTimer=requestAnimationFrame(scan);
+        };
+        scanTimer=requestAnimationFrame(scan);
+        return;
+      }catch(e){}
+    }
+
+    // Compatibility fallback for browsers without BarcodeDetector.
+    if(window.Html5Qrcode){
+      try{
+        stopVideoOnly();
+        htmlScanner=new Html5Qrcode('barcodeReader');
+        await htmlScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:280,height:120}},async code=>{
+          $('barcodeInput').value=code;
+          $('barcodeStatus').textContent='Barcode detected. Looking up product…';
+          stopScanner();
+          await lookupBarcode(code);
+        },()=>{});
+        $('barcodeStatus').textContent='Point the camera at the barcode…';
+        return;
+      }catch(e){
+        if(htmlScanner){try{await htmlScanner.clear()}catch(_){} htmlScanner=null;}
+      }
+    }
+    $('barcodeStatus').textContent='Camera is on. Automatic barcode detection is unavailable on this browser. Enter the barcode number below and tap Look up.';
+  }catch(e){
+    $('barcodeStatus').textContent='Camera could not open. Tap Allow when Chrome asks for camera access, or enter the barcode manually below.';
+  }
+}
+function stopVideoOnly(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}const v=$('barcodeVideo');if(v)v.srcObject=null}
+function stopScanner(){
+  if(scanTimer)cancelAnimationFrame(scanTimer);scanTimer=null;barcodeDetector=null;
+  if(htmlScanner){htmlScanner.stop().catch(()=>{});htmlScanner.clear().catch(()=>{});htmlScanner=null}
+  stopVideoOnly();
+}
+async function lookupBarcode(code){
+  code=String(code||'').trim().replace(/\D/g,'');
+  if(!code){$('barcodeStatus').textContent='Enter a barcode number first.';return}
+  $('barcodeStatus').textContent='Looking up product…';$('barcodeResult').innerHTML='';
+  try{
+    const target=`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`;
+    let r;
+    try{r=await fetch(target,{headers:{Accept:'application/json'}})}catch(_){r=await fetch('https://proxy.cors.dev/'+target,{credentials:'omit',headers:{Accept:'application/json'}})}
+    if(!r.ok)throw Error('HTTP '+r.status);
+    const d=await r.json();
+    if(d.status!==1||!d.product)throw Error('Product not found');
+    const f=mapOff(d.product);window._barcodeFood=f;
+    $('barcodeStatus').textContent='Product found';
+    $('barcodeResult').innerHTML=`<div class="online-result"><b>${esc(f.name)}</b><div class="small">Per 100g: ${fmt(f.cal)} kcal • P ${fmt(f.protein)}g • C ${fmt(f.carbs)}g • F ${fmt(f.fat)}g • Fiber ${fmt(f.fiber)}g</div><div class="row2"><input id="barcodeGrams" type="number" min="1" value="100"><button class="primary" onclick="addBarcodeFood()">Add to ${esc($('meal').value)}</button></div></div>`;
+  }catch(e){$('barcodeStatus').textContent='Product not found online. Check the barcode number or enter the food manually.'}
+}
+window.addBarcodeFood=()=>{const f=window._barcodeFood;if(f){addFood(f,$('barcodeGrams').value,$('meal').value);$('barcodeResult').innerHTML='<div class="notice">Added to today.</div>'}};
+$('barcodeLookup').onclick=()=>lookupBarcode($('barcodeInput').value);$('barcodeInput').onkeydown=e=>{if(e.key==='Enter')lookupBarcode(e.target.value)};
 
 function dayStats(ds){const a=entries.filter(e=>e.date===ds);return {cal:a.reduce((s,e)=>s+Number(e.cal||0),0),protein:a.reduce((s,e)=>s+Number(e.protein||0),0),carbs:a.reduce((s,e)=>s+Number(e.carbs||0),0),fat:a.reduce((s,e)=>s+Number(e.fat||0),0),fiber:a.reduce((s,e)=>s+Number(e.fiber||0),0)}}
 function reportDates(mode){const now=new Date();if(mode==='month'){const y=now.getFullYear(),m=now.getMonth(),n=new Date(y,m+1,0).getDate();return Array.from({length:n},(_,i)=>isoDate(new Date(y,m,i+1)))}const end=new Date();return Array.from({length:7},(_,i)=>{const d=new Date(end);d.setDate(end.getDate()-6+i);return isoDate(d)})}
