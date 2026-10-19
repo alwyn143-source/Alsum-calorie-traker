@@ -18,7 +18,7 @@
 <p class="muted">Enter nutrition per 100g and choose cooked, raw, dry, or as sold.</p>
 <div class="row2"><label>Name<input id="cName"></label><label>State<select id="cState"><option>cooked</option><option>raw</option><option>dry</option><option>as sold</option></select></label></div>
 <div class="grid4"><label>Calories<input id="cCal" type="number" step=".1"></label><label>Protein<input id="cP" type="number" step=".1"></label><label>Carbs<input id="cC" type="number" step=".1"></label><label>Fat<input id="cF" type="number" step=".1"></label></div>
-<label>Fiber<input id="cFi" type="number" step=".1" value="0"></label><button id="saveCustom" class="primary">Save custom food</button></div></section>
+<label>Fiber<input id="cFi" type="number" step=".1" value="0"></label><button id="saveCustom" class="primary">Save custom food</button><div class="saved-custom"><h3>Saved custom foods</h3><div id="customList"></div></div></div></section>
 <section class="card"><div class="sectiontitle"><h2>Today's foods</h2><span id="entryCount" class="pill">0</span></div><div id="entries"></div></section>
 <section class="card"><div class="sectiontitle"><h2>Daily targets</h2></div><div class="grid4"><label>Calories<input id="tCal" type="number" value="2000"></label><label>Protein g<input id="tP" type="number" value="120"></label><label>Carbs g<input id="tC" type="number" value="250"></label><label>Fat g<input id="tF" type="number" value="65"></label></div><label>Fiber g<input id="tFi" type="number" value="30"></label><button id="saveTargets" class="secondary">Save targets</button></section>
 <section class="card"><h2>7-day history</h2><div id="history"></div></section>
