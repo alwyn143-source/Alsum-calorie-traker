@@ -3,3 +3,11 @@
 .quicknav{position:sticky;top:8px;z-index:5}.navgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.chartbox{margin-top:14px;overflow-x:auto}.chartbox svg{width:100%;min-width:320px;height:220px}.weightrow,.plan-day,.reportgrid{display:grid;gap:10px}.weightrow{grid-template-columns:1fr auto;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.mealplan{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;margin-top:16px;overflow-x:auto}.plan-day{background:var(--panel2);padding:10px;border-radius:12px;min-height:180px}.plan-day h4{margin:0}.plan-item{font-size:.82rem;padding:7px 0;border-bottom:1px solid var(--border)}.plan-item button{float:right;padding:3px 6px}.shopping{white-space:pre-wrap;background:var(--panel2);padding:12px;border-radius:10px;min-height:40px}.reportgrid{grid-template-columns:repeat(3,1fr);margin:10px 0}.reportmetric{padding:12px;background:var(--panel2);border-radius:10px}.reportmetric b{display:block;font-size:1.25rem}.scannerbox{position:relative;max-width:520px;margin:10px auto;background:#111;border-radius:14px;overflow:hidden;min-height:220px}.scannerbox video{width:100%;display:block;min-height:220px;object-fit:cover}.scannerbox:after{content:"";position:absolute;left:8%;right:8%;top:50%;border-top:2px solid #fff;opacity:.8}.hidden{display:none!important}.reporttabs{display:flex;gap:6px}@media(max-width:700px){.navgrid{grid-template-columns:repeat(2,1fr)}.mealplan{grid-template-columns:repeat(7,145px)}.reportgrid{grid-template-columns:repeat(2,1fr)}.quicknav{position:relative}}
 
 .save-status{display:block;margin-top:8px;min-height:1.2em;font-weight:700}.weight-actions{display:flex;gap:10px;flex-wrap:wrap}.weight-actions button{flex:1;min-width:180px}
+
+/* V8.4 barcode scanner: use the html5-qrcode camera surface on Android */
+#barcodeReader{width:100%;min-height:220px;background:#111;border-radius:14px;overflow:hidden}
+#barcodeReader video{width:100%!important;height:auto!important;min-height:220px!important;object-fit:cover!important;display:block!important}
+#barcodeReader__scan_region{width:100%!important;min-height:220px!important}
+#barcodeReader__scan_region img{display:none!important}
+#barcodeReader__dashboard_section{padding:8px!important}
+#barcodeVideo{display:none!important}

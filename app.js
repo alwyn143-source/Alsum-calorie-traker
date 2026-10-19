@@ -75,73 +75,73 @@ $('planWeek').value=mondayOf(today());$('planWeek').onchange=()=>{populatePlanFo
 $('clearPlan').onclick=()=>{if(!confirm('Clear this week\'s meal plan?'))return;const start=mondayOf($('planWeek').value||today());for(let i=0;i<7;i++){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);['Breakfast','Lunch','Dinner','Snacks'].forEach(m=>delete mealPlan[planKey(isoDate(d),m)])}localStorage.setItem('nt_mealplan',JSON.stringify(mealPlan));renderMealPlan()};
 $('shoppingBtn').onclick=()=>{const start=mondayOf($('planWeek').value||today());const sums={};for(let i=0;i<7;i++){const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);['Breakfast','Lunch','Dinner','Snacks'].forEach(m=>(mealPlan[planKey(isoDate(d),m)]||[]).forEach(x=>{const k=`${x.name} (${x.state})`;sums[k]=(sums[k]||0)+Number(x.grams)}))}$('shoppingList').textContent=Object.keys(sums).length?Object.entries(sums).sort().map(([k,v])=>`• ${k}: ${fmt(v)} g`).join('\n'):'No foods planned yet.'};
 
-function openScanner(){scrollToId('scannerSection');setTimeout(startScanner,250)};window.openScanner=openScanner;$('closeScanner').onclick=stopScanner;
-let scanStream=null,scanTimer=null,htmlScanner=null,barcodeDetector=null;
+function openScanner(){
+  scrollToId('scannerSection');
+  setTimeout(startScanner,350);
+}
+window.openScanner=openScanner;
+$('closeScanner').onclick=stopScanner;
+
+let htmlScanner=null;
+
 async function startScanner(){
-  stopScanner();
+  await stopScanner();
   $('barcodeStatus').textContent='Starting camera…';
-  const video=$('barcodeVideo');
+
+  // Use html5-qrcode first. This is more reliable on Android Chrome than
+  // relying on BarcodeDetector, which can expose a black native video stream
+  // on some devices/browsers.
+  if(!window.Html5Qrcode){
+    $('barcodeStatus').textContent='Scanner library could not load. Enter the barcode number below and tap Look up.';
+    return;
+  }
+
   try{
-    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Camera API unavailable');
-    scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
-    video.srcObject=scanStream;
-    video.muted=true; video.setAttribute('playsinline','');
-    await video.play();
-    $('barcodeStatus').textContent='Camera is on. Point it at the barcode…';
+    const reader=$('barcodeReader');
+    reader.innerHTML='';
+    htmlScanner=new Html5Qrcode('barcodeReader');
 
-    if('BarcodeDetector' in window){
-      try{
-        const formats=await BarcodeDetector.getSupportedFormats();
-        const wanted=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','codabar'].filter(x=>formats.includes(x));
-        barcodeDetector=new BarcodeDetector(wanted.length?{formats:wanted}:undefined);
-        const scan=async()=>{
-          if(!scanStream||video.readyState<2){scanTimer=requestAnimationFrame(scan);return}
-          try{
-            const found=await barcodeDetector.detect(video);
-            if(found && found.length){
-              const code=found[0].rawValue;
-              $('barcodeInput').value=code;
-              $('barcodeStatus').textContent='Barcode detected. Looking up product…';
-              stopScanner();
-              await lookupBarcode(code);
-              return;
-            }
-          }catch(e){}
-          scanTimer=requestAnimationFrame(scan);
-        };
-        scanTimer=requestAnimationFrame(scan);
-        return;
-      }catch(e){}
-    }
+    await htmlScanner.start(
+      {facingMode:{ideal:'environment'}},
+      {
+        fps:10,
+        qrbox:{width:280,height:140},
+        aspectRatio:1.7777778
+      },
+      async (decodedText)=>{
+        const code=String(decodedText||'').trim();
+        if(!code) return;
+        $('barcodeInput').value=code;
+        $('barcodeStatus').textContent='Barcode detected. Looking up product…';
+        await stopScanner();
+        await lookupBarcode(code);
+      },
+      ()=>{}
+    );
 
-    // Compatibility fallback for browsers without BarcodeDetector.
-    if(window.Html5Qrcode){
-      try{
-        stopVideoOnly();
-        htmlScanner=new Html5Qrcode('barcodeReader');
-        await htmlScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:280,height:120}},async code=>{
-          $('barcodeInput').value=code;
-          $('barcodeStatus').textContent='Barcode detected. Looking up product…';
-          stopScanner();
-          await lookupBarcode(code);
-        },()=>{});
-        $('barcodeStatus').textContent='Point the camera at the barcode…';
-        return;
-      }catch(e){
-        if(htmlScanner){try{await htmlScanner.clear()}catch(_){} htmlScanner=null;}
-      }
-    }
-    $('barcodeStatus').textContent='Camera is on. Automatic barcode detection is unavailable on this browser. Enter the barcode number below and tap Look up.';
+    $('barcodeStatus').textContent='Camera is on. Point the barcode inside the box…';
   }catch(e){
-    $('barcodeStatus').textContent='Camera could not open. Tap Allow when Chrome asks for camera access, or enter the barcode manually below.';
+    try{
+      if(htmlScanner){
+        await htmlScanner.stop().catch(()=>{});
+        await htmlScanner.clear().catch(()=>{});
+      }
+    }catch(_){}
+    htmlScanner=null;
+    $('barcodeStatus').textContent='Camera could not start. Tap Allow for camera access, then try Barcode again. You can also enter the barcode number below.';
   }
 }
-function stopVideoOnly(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}const v=$('barcodeVideo');if(v)v.srcObject=null}
-function stopScanner(){
-  if(scanTimer)cancelAnimationFrame(scanTimer);scanTimer=null;barcodeDetector=null;
-  if(htmlScanner){htmlScanner.stop().catch(()=>{});htmlScanner.clear().catch(()=>{});htmlScanner=null}
-  stopVideoOnly();
+
+async function stopScanner(){
+  if(htmlScanner){
+    try{ await htmlScanner.stop(); }catch(_){}
+    try{ await htmlScanner.clear(); }catch(_){}
+    htmlScanner=null;
+  }
+  const reader=$('barcodeReader');
+  if(reader) reader.innerHTML='';
 }
+
 async function lookupBarcode(code){
   code=String(code||'').trim().replace(/\D/g,'');
   if(!code){$('barcodeStatus').textContent='Enter a barcode number first.';return}
